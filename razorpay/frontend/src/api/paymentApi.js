@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  "https://razorpay-sxsq.onrender.com" || "http://localhost:5000/api/payment";
+  "https://razorpay-sxsq.onrender.com/api/payment" || "http://localhost:5000/api/payment";
 
 export const createOrder = async (amount) => {
   try {
