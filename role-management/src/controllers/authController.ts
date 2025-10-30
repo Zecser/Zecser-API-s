@@ -15,7 +15,7 @@ const signToken = (userId: string): string => {
 };
 
 
-// Register new user
+
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
