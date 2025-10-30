@@ -1,19 +1,25 @@
-import dotenv from "dotenv"
-import mongoose from "mongoose"
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
-async function connectDB(): Promise<void> {
+const connectDB = async (): Promise<void> => {
+  try {
+    const mongoURI = process.env.MONGO_URI;
 
-    const mongoConnection = process.env.MONGO_URI || "mongodb://localhost:27017/user-profile-management"
-
-    try {
-        mongoose.connect(mongoConnection)
-        console.log("Mongodb connectDB successfully")
-    } catch (error) {
-        console.log(error)
-        process.exit(1)
+    if (!mongoURI) {
+      throw new Error("MONGO_URI not found in environment variables");
     }
-}
 
-export default connectDB
+    await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 5000, 
+    });
+
+    console.log("MongoDB connected successfully (cloud ready)");
+  } catch (error) {
+    console.error("MongoDB connection failed:", (error as Error).message);
+    process.exit(1);
+  }
+};
+
+export default connectDB;
