@@ -1,0 +1,31 @@
+{
+  "name": "user-profile-management",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Akshai muraleedharan",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "joi": "^18.0.1",
+    "mongoose": "^8.19.2",
+    "swagger-jsdoc": "^3.7.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/joi": "^17.2.2",
+    "@types/node": "^24.9.1",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
