@@ -227,7 +227,7 @@ export const approveModeratorRequest = async (req: AuthRequest, res: Response) =
     const user = await UserModel.findById(request.userId._id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    user.role = moderatorRole._id;
+    user.role = moderatorRole._id as any;
     await user.save();
 
     request.status = "approved";
@@ -358,7 +358,7 @@ export const removeModerator = async (req: Request, res: Response) => {
       return res.status(500).json({ message: "Default User role not found" });
     }
 
-    user.role = userRole._id;
+    user.role = userRole._id as any;
     await user.save();
 
     res.json({ message: "Moderator role removed successfully" });
@@ -386,7 +386,7 @@ export const listModeratorsOnly = async (req: AuthRequest, res: Response): Promi
     }
 
     
-    if (currentUser.role.name !== "admin") {
+    if ((currentUser.role as any).name !== "admin") {
       res.status(403).json({ success: false, message: "Access denied. Admins only." });
       return;
     }

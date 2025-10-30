@@ -10,10 +10,10 @@ import { Document } from "mongoose";
 
 const signToken = (userId: string): string => {
   const secret = process.env.JWT_SECRET || "secret";
-  const expiresIn = process.env.JWT_EXPIRES_IN || "7d";
-  const options: SignOptions = { expiresIn };
-  return jwt.sign({ id: userId }, secret, options);
+  const expiresIn = (process.env.JWT_EXPIRES_IN || "7d") as jwt.SignOptions["expiresIn"];
+  return jwt.sign({ id: userId }, secret, { expiresIn });
 };
+
 
 // Register new user
 
@@ -21,7 +21,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password } = req.body;
 
-    
+
     if (!name?.trim() || !email?.trim() || !password) {
       res.status(400).json({ message: "Missing fields: name, email, password" });
       return;
@@ -38,25 +38,25 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-   
+
     const existingUser = await UserModel.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       res.status(400).json({ message: "Email already registered" });
       return;
     }
-    
-   
-    
+
+
+
     const userRole = await RoleModel.findOne({ name: "User" });
     if (!userRole) {
       res.status(500).json({ message: "User role not found" });
       return;
     }
 
-   
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    
+
     const user = await UserModel.create({
       name: name.trim(),
       email: email.toLowerCase(),
@@ -64,7 +64,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       role: userRole._id,
     });
 
-    
+    if (!user._id) {
+      res.status(500).json({ message: "Error creating user" });
+      return;
+    }
+
     const token = signToken(user._id.toString());
 
     res.status(201).json({
@@ -101,17 +105,17 @@ export const requestModeratorRole = async (req: AuthRequest, res: Response) => {
     const user = await UserModel.findById(userId).populate("role");
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (["Moderator", "Admin"].includes(user.role?.name)) {
+    if (["Moderator", "Admin"].includes((user?.role as IRole)?.name)) {
       return res.status(400).json({ message: "You are already a moderator or admin" });
     }
 
-    
+
     const existingRequest = await ModeratorRequestModel.findOne({ userId, status: "pending" });
     if (existingRequest) {
       return res.status(400).json({ message: "You already have a pending moderator request" });
     }
 
-    
+
     const request = await ModeratorRequestModel.create({
       userId,
       reason: reason.trim(),
@@ -156,8 +160,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         id: (user._id as string).toString(),
         name: user.name,
         email: user.email,
-        role: user.role.name,
-        permissions: user.role.permissions,
+        role: (user.role as IRole).name,
+        permissions: (user.role as IRole).permissions,
       },
     });
   } catch (err) {
@@ -183,8 +187,8 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
         id: (user._id as string).toString(),
         name: user.name,
         email: user.email,
-        role: user.role.name,
-        permissions: user.role.permissions,
+        role: (user.role as IRole).name,
+        permissions: (user.role as IRole).permissions,
       },
     });
   } catch (err) {
@@ -204,7 +208,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-   
+
     if (email?.trim()) {
       const existingUser = await UserModel.findOne({
         email: email.toLowerCase(),
